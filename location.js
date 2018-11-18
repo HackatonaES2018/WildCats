@@ -7,7 +7,7 @@ const url_ip = "http://api.ipapi.com/api/";
 
 
 /*
-method responsible for returning the location 
+method responsible for returning the location
 from a parametrized ip (json format).
 */
 function get_location(ip, callback){
@@ -21,7 +21,7 @@ function get_location(ip, callback){
 	request({
 
 		uri : url_ip + ip,
-		qs : query		
+		qs : query
 
 	}, function(err, res, body){
 		if(err){ return console.log(err); }
@@ -30,3 +30,5 @@ function get_location(ip, callback){
 	});
 
 }
+
+module.exports = { getLocation : get_location }
