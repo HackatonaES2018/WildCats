@@ -11,36 +11,33 @@ var fs = require('fs');
 //the user's acess key for the api's usage
 const api_key = "53C8D9A5-0C9C-494B-A4E2-DB089E73CC3B";
 //the api's general-purpose endpoint 
-const endpoint = "https://crediariohomolog.acesso.io/portocred/services/v2/credService.svc";
+const endpoint = "https://biodevelopment.acesso.io/Crediario/Desenvolvimento3/services/v2/CredService.svc";
 
 /*
 method responsible for securing a document's photo fidelity
 */
 function secure_document(image_file, type_of_document, token){
-	
+
 	var encoded_image = encode_image(image_file);
 
-	request({
-		
-			headers: {
-				"X-AcessoBio-APIKEY" : api_key,
-				"Authentication" : token
-			},
+	var header = {
+		"X-AcessoBio-APIKEY" : api_key,
+		"Authentication" : token,
+		"Content-Type" : "application/json"
+	};
 
-			body: JSON.stringify({
-				"imageBase64" : encoded_image,
-			}),
+	var body = JSON.stringify({
 
-			"content-type" : "application/json",
+		"imageBase64" : encoded_image
+	});
 
-			uri : endpoint + "/document/confirmation/" + type_of_document,
-			method : 'POST'
-		
-		}, function(err, res, body){
-			
+	var url = endpoint + "/document/confirmation/" + type_of_document; 
+
+	request.post({url : url, body : body, headers : header}, function(err, res, body){
 			if(err) { return console.log(err); }
-			console.log(body);
-
+			
+			jObject = JSON.parse(body);
+			console.log(jObject);
 	});
 
 }
@@ -85,10 +82,10 @@ function encode_image(file){
 the token generator callback function
 */
 function get_token(jObject) {
-	var tokens = [];
-	tokens.push(jObject.GetAuthTokenResult.AuthToken);
-	tokens.push(jObject.GetAuthTokenResult.RenewAuthToken);
-	secure_document("rg_teste.jpg", "2", tokens[0]);
+	//var tokens = [];
+	//tokens.push();
+	//tokens.push(jObject.GetAuthTokenResult.RenewAuthToken);
+	secure_document("rg_teste.jpg", "2", jObject.GetAuthTokenResult.AuthToken);
 }
 
 //main
