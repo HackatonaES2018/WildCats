@@ -10,13 +10,36 @@ var idc = {'client_id' : '8f60318d-95ba-36e9-bd29-525501339b4d'}
 var base_url = 'https://sb-api.portocred.com.br/credito-pessoal-demo/v1';
 
 // Dictionaries to store the location of multiple steps of the process
-var location_propostas  = [];
-var location_documentos  = [];
-var location_seleciona_ofer  = [];
-var location_efetiva  = [];
+var location_propostas  = {};
+var location_documentos  = {};
+var location_seleciona_ofer  = {};
+var location_efetiva  = {};
 
 // Routes
 var ip = "1.1.1.1";
+
+/*
+route to generate the location report
+returns objects with the location of each step of the flow for a given key
+*/
+app.get("/report", function(req, res){
+
+    var report = {}
+    for(var key in location_propostas){
+
+        var item = {};
+
+        item.location_propostas = location_propostas[key];
+        item.location_documents = location_documentos[key];
+        item.location_seleciona_ofer = location_seleciona_ofer[key];
+        item.location_efetiva = location_efetiva[key]; 
+        
+        report[key] = item;
+
+    }
+
+    res.send(JSON.stringify(report));
+});
 
 /*
 route to create the proposal
@@ -43,15 +66,11 @@ app.post("/criarProposta", function (req, res) {
                     res.end();
 
                     var time = Date.now();
+                    var body_obj = JSON.parse(body);
 
                     locationModule.getLocation(ip, function (location) {
                         location.time = time;
-                        // Adiciona no dicionario
-                        location_propostas.push({
-                            key: body.proposta,
-                            value: location
-                        });
-
+                        location_propostas[body_obj.proposta + ""] = {value: location};
                     })
                 }
                 else {
@@ -88,14 +107,12 @@ app.post("/postDocumento/:prop", function (req, res) {
                     res.send(body);
                     res.end();
 
-                    var time = Data.now();
+                    var time = Date.now();
+
                     locationModule.getLocation(ip, function (location) {
                         location.time = time;
                         // Adiciona no dicionario
-                        location_documentos.push({
-                            key: req.params.prop,
-                            value: location
-                        });
+                        location_documentos[req.params.prop] = {value: location};
                     })
                 }
                 else {
@@ -164,10 +181,7 @@ app.put("/seleciona_ofertas/:prop/:ofer", function(req, res){
                         // Adiciona no dicionario
                         location.time = time;
                         location.oferta = req.param.ofer;
-                        location_seleciona_ofer.push({
-                            key: req.params.prop,
-                            value: location
-                        });
+                        location_seleciona_ofer[req.params.prop] = {value: location};
                     })
                 }
                 else{
@@ -202,11 +216,7 @@ app.patch("/efetiva/:prop", function(req,res){
                     var time = Date.now();
                     locationModule.getLocation(ip, function (location) {
                         location.time = time;
-                        // Adiciona no dicionario
-                        location_efetiva.push({
-                            key: req.params.prop,
-                            value: location
-                        });
+                        location_efetiva[req.params.prop] = {value: location};
                     })
                 }
                 else{
