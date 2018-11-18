@@ -1,3 +1,4 @@
+var locationModule = require('./location.js')
 var express = require('express');
 var app = express();
 
@@ -14,23 +15,8 @@ var location_documentos  = [];
 var location_seleciona_ofer  = [];
 var location_efetiva  = [];
 
-// Get Location
-function findLocation(callback) {
-
-    var result = {
-        location : "Brazil"
-    };
-
-    callback(result);
-
-}
-
 // Routes
-app.get("/", function(req, res) {
-
-    res.send("Oi Conrado!");
-
-});
+var ip = "1.1.1.1";
 
 /*
 route to create the proposal
@@ -51,19 +37,21 @@ app.post("/criarProposta", function (req, res) {
                 res.send();
             }
             else {
-                if (response.statusCode == 200) {
+                if (response.statusCode == 201) {
                     res.status(200);
                     res.send(body);
                     res.end();
 
                     var time = Date.now();
-                    findLocation(function (location) {
+
+                    locationModule.getLocation(ip, function (location) {
                         location.time = time;
                         // Adiciona no dicionario
                         location_propostas.push({
                             key: body.proposta,
                             value: location
                         });
+
                     })
                 }
                 else {
@@ -95,13 +83,13 @@ app.post("/postDocumento/:prop", function (req, res) {
                 res.send();
             }
             else {
-                if (response.statusCode == 200) {
+                if (response.statusCode == 201) {
                     res.status(200);
                     res.send(body);
                     res.end();
 
                     var time = Data.now();
-                    findLocation(function (location) {
+                    locationModule.getLocation(ip, function (location) {
                         location.time = time;
                         // Adiciona no dicionario
                         location_documentos.push({
@@ -172,7 +160,7 @@ app.put("/seleciona_ofertas/:prop/:ofer", function(req, res){
                     res.end();
 
                     var time = Date.now();
-                    findLocation(function (location) {
+                    locationModule.getLocation(ip, function (location) {
                         // Adiciona no dicionario
                         location.time = time;
                         location.oferta = req.param.ofer;
@@ -212,7 +200,7 @@ app.patch("/efetiva/:prop", function(req,res){
                     res.end();
 
                     var time = Date.now();
-                    findLocation(function (location) {
+                    locationModule.getLocation(ip, function (location) {
                         location.time = time;
                         // Adiciona no dicionario
                         location_efetiva.push({
